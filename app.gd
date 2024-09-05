@@ -86,22 +86,22 @@ func _ready() -> void:
 	for i:int in ordered:
 		d1[i] = i
 	test_end(ordered_iter_time)
-	d1.clear()
 	
 	test_begin("Dictionary: add %s elements in random order" % [ITEM_COUNT_DISPLAY])
 	var d2:Dictionary
 	for i:int in random:
 		d2[i] = i
 	test_end(random_iter_time)
+	d2.clear()
 	
 	test_begin("Dictionary: access all %s elements in order" % [ITEM_COUNT_DISPLAY])
 	for i:int in ordered:
-		var n:int = d2[i]
+		var n:int = d1[i]
 	test_end(ordered_iter_time)
 	
 	test_begin("Dictionary: access all %s elements in random order" % [ITEM_COUNT_DISPLAY])
 	for i:int in random:
-		var n:int = d2[i]
+		var n:int = d1[i]
 	test_end(random_iter_time)
 
 
