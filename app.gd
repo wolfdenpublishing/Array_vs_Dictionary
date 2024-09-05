@@ -8,8 +8,10 @@ const ITEM_COUNT_DISPLAY := "100,000,000"
 var start_time:int
 var start_mem:int
 var ordered:Array
+var packed_ordered:PackedInt64Array
 var ordered_iter_time:int
 var random:Array
+var packed_random:PackedInt64Array
 var random_iter_time:int
 
 
@@ -25,8 +27,10 @@ func _ready() -> void:
 
 	# create two arrays of size ITEM_COUNT, one ordered, one randomized (for repeatable random ordering)
 	ordered = range(ITEM_COUNT)
+	packed_ordered = PackedInt64Array(ordered)
 	random = ordered.duplicate()
 	random.shuffle()
+	packed_random = PackedInt64Array(random)
 	
 	test_begin("Iterate the ordered array")
 	for i:int in ordered:
@@ -34,10 +38,20 @@ func _ready() -> void:
 	ordered_iter_time = Time.get_ticks_usec() - start_time
 	test_end()
 	
+	test_begin("Iterate the packed ordered array")
+	for i:int in packed_ordered:
+		pass
+	test_end()
+	
 	test_begin("Iterate the random array")
 	for i:int in random:
 		pass
 	random_iter_time = Time.get_ticks_usec() - start_time
+	test_end()
+	
+	test_begin("Iterate the packed random array")
+	for i:int in packed_random:
+		pass
 	test_end()
 	
 	test_begin("Array: add %s elements in order via append()" % [ITEM_COUNT_DISPLAY])
@@ -47,7 +61,7 @@ func _ready() -> void:
 	test_end(ordered_iter_time)
 	a1.clear()
 	
-	test_begin("Array: add %s elements in order via [], preallocate with resize()" % [ITEM_COUNT_DISPLAY])
+	test_begin("Array: add %s elements in order, preallocate with resize()" % [ITEM_COUNT_DISPLAY])
 	var a2:Array[int]
 	a2.resize(ITEM_COUNT)
 	for i:int in ordered:
@@ -79,6 +93,47 @@ func _ready() -> void:
 	test_begin("Array: access all %s elements in random order" % [ITEM_COUNT_DISPLAY])
 	for i:int in random:
 		var n := a4[i]
+	test_end(random_iter_time)
+	
+	test_begin("PackedInt64Array: add %s elements in order via append()" % [ITEM_COUNT_DISPLAY])
+	var p1:PackedInt64Array
+	for i:int in ordered:
+		p1.append(i)
+	test_end(ordered_iter_time)
+	p1.clear()
+	
+	test_begin("PackedInt64Array: add %s elements in order, preallocate with resize()" % [ITEM_COUNT_DISPLAY])
+	var p2:PackedInt64Array
+	p2.resize(ITEM_COUNT)
+	for i:int in ordered:
+		p2[i] = i
+	test_end(ordered_iter_time)
+	p2.clear()
+	
+	test_begin("PackedInt64Array: add %s elements in random order, dynamically extend with resize()" % [ITEM_COUNT_DISPLAY])
+	var p3:PackedInt64Array
+	for i:int in random:
+		if p3.size() < i + 1:
+			p3.resize(i + 1)
+		p3[i] = i
+	test_end(random_iter_time)
+	p3.clear()
+	
+	test_begin("PackedInt64Array: add %s elements in random order, preallocate with resize()" % [ITEM_COUNT_DISPLAY])
+	var p4:PackedInt64Array
+	p4.resize(ITEM_COUNT)
+	for i:int in random:
+		p4[i] = i
+	test_end(random_iter_time)
+	
+	test_begin("PackedInt64Array: access all %s elements in order" % [ITEM_COUNT_DISPLAY])
+	for i:int in ordered:
+		var n := p4[i]
+	test_end(ordered_iter_time)
+	
+	test_begin("PackedInt64Array: access all %s elements in random order" % [ITEM_COUNT_DISPLAY])
+	for i:int in random:
+		var n := p4[i]
 	test_end(random_iter_time)
 	
 	test_begin("Dictionary: add %s elements in order" % [ITEM_COUNT_DISPLAY])
